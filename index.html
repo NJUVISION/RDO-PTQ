@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1200, initial-scale=0.33"/>
+    <!-- <meta name="viewport" content="width=device-width"> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <title>Rate-Distortion Optimized Post-Training Quantization for Learned Image Compression</title>
+    <script type="text/javascript" src="src/latexit.js"></script>
+    <script type="text/javascript">
+    LatexIT.add('p',true);
+    </script>
+
+    <!-- CSS includes -->
+    <link href="src/bootstrap.css" rel="stylesheet">
+    <link href="src/css.css" rel="stylesheet" type="text/css">
+    <link href="src/mystyle.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="header" class="container-fluid">
+        <div class="row">
+            <h1>Rate-Distortion Optimized Post-Training Quantization <br /> for Learned Image Compression</h1>
+            <div class="authors">
+                <a href="https://eric-qi.github.io" target="_blank">Junqi Shi</a><sup>1</sup>, 
+                <a href="https://lumingzzz.github.io" target="_blank">Ming Lu</a><sup>1</sup>, and 
+                <a href="https://vision.nju.edu.cn/fc/d3/c29470a457939/page.htm", target="_blank">Zhan Ma</a>
+
+                <div class="affiliations">
+                    <a href="https://www.nju.edu.cn/" target="_blank">NJU</a>, 
+                    <a href="http://vision.nju.edu.cn/" target="_blank">Vision Lab</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="abstractdiv">
+        <h2>Abstract</h2>
+        <p class="text-justify">
+            Quantizing a floating-point neural network to its fixed-point representation is crucial for Learned Image Compression (LIC) 
+            because it assures  the decoding consistency for interoperability and reduces space-time complexity for implementation. 
+            Existing solutions often have to retrain the network for model quantization which is time-consuming and impractical. 
+            This work suggests the use of Post-Training Quantization (PTQ) to process pretrained, off-the-shelf LIC models directly. 
+            We theoretically prove that minimizing the mean square error (MSE) of model parameters (e.g., weight, bias, and activation) 
+            in PTQ is sub-optimal for compression tasks and thus develop a novel Rate-Distortion (R-D) Optimized PTQ (RDO-PTQ) 
+            to best retain the compression performance. Given a  LIC model,  RDO-PTQ  layer-wisely determines the quantization factors 
+            to transform the original 32-bit floating-point (FP32) parameters to the 8-bit fixed-point (INT8) precision, 
+            for which  a tiny calibration image set is compressed in optimization to minimize R-D loss. 
+            Experiments reveal the outstanding efficiency of the proposed method on different LICs, showing the closest coding performance 
+            to their floating-point counterparts. And, our method is a lightweight and plug-and-play approach without any need 
+            for model retraining which is attractive to practitioners. Such an RDO-PTQ is a task-oriented PTQ scheme, 
+            which is then extended to quantize popular super-resolution and image classification models with negligible performance loss, 
+            further evidencing the generalization of our methodology.
+        </p>
+    </div>
+
+    <div class="container" id="overview">
+        <h2>Overview</h2>
+        <ul>
+            <li class="text-justify">We propose a task-oriented PTQ used for quantizing the LIC model considering the rate and distortion metrics jointly
+                e.g., <b>RDO-PTQ</b>,  with which it just needs a few random image samples to reconstruct models
+                without any model retraining.
+            </li>
+            <li class="text-justify">The optimization will take  local layer quantization loss <b>L<sub>lq</sub></b> 
+                and  global model task loss <b>L<sub>task</sub></b> jointly into consideration,
+                including scaling factor optimization and rounding optimization.
+            </li>
+            <li class="text-justify">We adopt learnable parameters to control dynamic range, and using bias rescaling to implement 
+                requantization and bias quantization. 
+            </li>
+            <li class="text-justify">This task-oriented PTQ can be used for image classification and  super-resolution (SR) tasks
+            </li>
+        <ul>
+    
+    </div>
+
+    <div class="container" id="LIC">
+        <h2>Learned Image Compression</h2>
+        <br>
+        <h3>The diverse channel distributions of the layer</h3>
+        <div id="channel">
+            <div class="row" style="text-align: center;">
+                <img src="src/w0.png" height="150">
+                <img src="src/w1.png" height="150">
+                <img src="src/a0.png" height="150">
+                <img src="src/a1.png" height="150">
+                <br>
+                <strong>The diverse channel distributions.</strong>
+            </div>
+        </div>
+        <p class="text-justify">Because of diverse channel distribution of the layer, 
+            layer-wise quantization will degrade quantization seriously.
+            Channel-wise quantization is a better choice.
+        </p>
+        <br>
+        <h3>Evaluations</h3>
+        <div id="rd">
+            <div class="row" style="text-align: center;">
+                <img src="src/kodak.png" height="375">
+                <img src="src/tecnick.png" height="375">
+                <br>
+                <strong>R-D Performance in 8-bit.</strong>
+            </div>
+            <br>
+            <div class="row" style="text-align: center;">
+                <img src="src/kodak10.png" height="200">
+                <img src="src/tecnick10.png" height="200">
+                <br>
+                <strong>R-D Performance in 10-bit.</strong>
+            </div>
+        </div>
+        <br>
+        
+    </div>
+
+    <div class="container" id="imagenet">
+        <h2>Image Classification</h2>
+        <div id="comparison_table">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-8" style="text-align:center;">
+                <table class="table" border="1">
+                    <tr>
+                    <th rowspan="2" style="text-align:center;">Method</th> 
+                    <th colspan="2" style="text-align:center;">Bit-Width</th> 
+                    <th colspan="2" style="text-align:center;">Architecture</th>
+                    </tr>
+                    <tr>
+                        <td>W</td> <td>A</td>
+                        <td>&ensp;&ensp; ResNet-18&ensp; &ensp; </td> <td>RegNet-600MF</td>
+                    </tr>            
+                    <tr>
+                        <td>FP32</td> <td>32</td> <td>32</td>
+                        <td>71.01%</td> <td>73.54%</td>
+                    </tr>
+                    <tr>
+                        <td>Ours</td> <td>8</td> <td>8</td>
+                        <td>70.96%</td> <td>73.50%</td>
+                    </tr>
+                    <tr>
+                        <td>Ours</td> <td>4</td> <td>4</td>
+                        <td>68.83%</td> <td>70.46%</td>
+                    </tr>    
+                    <tr>
+                        <td>Ours</td> <td>2</td> <td>2</td>
+                        <td>42.65%</td> <td>31.52%</td>
+                    </tr>           
+                </table>
+                <strong>Accuracy in ImageNet.</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="SR">
+        <h2>Super Resolution</h2>
+        <div id="comparison_table">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-8" style="text-align:center;">
+                <table class="table" border="1">
+                    <tr>
+                    <th rowspan="2" style="text-align:center;">Architecture</th> 
+                    <th colspan="3" style="text-align:center;">Scale</th>
+                    </tr>
+                    <tr>
+                        <td>X2</td> <td>X3</td> <td>X4</td>
+                        
+                    </tr>            
+                    <tr>
+                        <td>EDSR</td> <td>↓0.013dB</td> <td>↓0.006dB</td>
+                        <td>↓0.003dB</td> 
+                    </tr>
+                    <tr>
+                        <td>SwinIR-light</td> <td>↓0.047dB</td> <td>↓0.020dB</td>
+                        <td>↓0.016dB</td> 
+                    </tr>
+           
+                </table>
+                <strong>Average PSNR loss in 8-bit.</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="paperdiv">
+        <h2>Preprint Paper</h2>
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-4">
+                <a href="https://github.com/Eric-qi/RDO-PTQ" target="_blank"><p style="text-align: center;">
+                <img src="src/github_icon.png">
+                <br/>
+                Code (Github)
+            </p></a></div>
+            <div class="col-sm-4">
+                <a href="https://arxiv.org/abs/2211.02854" target="_blank"><p style="text-align: center;">
+                <img src="src/pdf_icon.png" height="120">
+                <br/>
+                Paper (Arxiv)
+            </p></a></div>
+        </div>
+        <a href="" target="_blank">
+            <div class="thumbs">
+            </div>
+        </a>
+        <div>
+            <h2>BibTeX Citation</h2>
+            <pre class="citation">
+                @article{shi2022rate,
+                    title={Rate-Distortion Optimized Post-Training Quantization for Learned Image Compression},
+                    author={Shi, Junqi and Lu, Ming and Chen, Fangdong and Pu, Shiliang and Ma, Zhan},
+                    journal={arXiv preprint arXiv:2211.02854},
+                    year={2022}
+                }
+            </pre>
+        </div>
+    </div>
+
+
+    <div id=footer><br></div>
+    <script src="src/jquery-3.5.1.js"></script>
+    <script src="src/bootstrap.js"></script>
+  
+
+</body>
+</html>
